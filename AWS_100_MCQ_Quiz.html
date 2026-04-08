@@ -1,0 +1,833 @@
+
+<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+  <meta charset=\"UTF-8\" />
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+  <title>AWS Basics – Week 4 – 100 MCQ Interactive Quiz</title>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#131a2e; --muted:#1e2743; --accent:#6ee7b7; --accent2:#60a5fa;
+      --text:#e5e7eb; --sub:#9ca3af; --danger:#fb7185; --warn:#fbbf24; --ok:#34d399;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    header{padding:24px 16px;max-width:1000px;margin:0 auto}
+    h1{margin:0;font-size:24px}
+    .sub{color:var(--sub);font-size:14px}
+    .container{max-width:1000px;margin:0 auto;padding:0 16px 40px}
+    .toolbar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:12px 0}
+    .toolbar>*{background:var(--card);border:1px solid var(--muted);padding:10px;border-radius:12px}
+    select,button,input[type=checkbox]{background:transparent;color:var(--text);border:none;outline:none;width:100%}
+    button.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0a0a;font-weight:600}
+    .card{background:var(--card);border:1px solid var(--muted);border-radius:16px;padding:16px}
+    .qhead{display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .badge{font-size:12px;color:#0a0a0a;background:var(--accent);padding:2px 8px;border-radius:999px}
+    .progress{height:10px;background:var(--muted);border-radius:999px;overflow:hidden}
+    .bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+    .options{display:grid;gap:8px;margin-top:12px}
+    .opt{border:1px solid var(--muted);border-radius:12px;padding:10px;cursor:pointer;background:#0f1530}
+    .opt.correct{border-color:var(--ok);background:#0d2a21}
+    .opt.wrong{border-color:var(--danger);background:#2b0f16}
+    .opt:hover{border-color:var(--accent2)}
+    .result{margin-top:10px;padding:10px;border-radius:12px}
+    .result.ok{background:#0d2a21;border:1px solid var(--ok)}
+    .result.bad{background:#2b0f16;border:1px solid var(--danger)}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .pill{background:var(--muted);border-radius:999px;padding:6px 10px;color:var(--text);border:none}
+    .muted{color:var(--sub)}
+    details{background:#0d1329;border:1px dashed var(--muted);padding:10px;border-radius:12px;margin-top:10px}
+    summary{cursor:pointer;color:var(--accent2);font-weight:600}
+    footer{color:var(--sub);text-align:center;margin-top:24px}
+    .small{font-size:12px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:700px){ .toolbar{grid-template-columns:1fr 1fr}; .grid2{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AWS Basics – Week 4 – 100 MCQ Interactive Quiz</h1>
+    <div class=\"sub\">Covers: Cloud fundamentals • Cloud models • IaaS/PaaS/SaaS • AWS & Well-Architected • VPC (subnets, route tables, SG/NACL) • Peering • Direct Connect • VPN • NAT GW & Endpoints • Transit Gateway • EC2 pricing models • EIP & Key Pairs • AZs/Regions • EBS types • AMIs & Snapshots • Linux basics • Auto Scaling & lifecycle • Elastic Load Balancing (ALB/NLB) • CloudWatch Events/Alarms • S3 & Glacier (lifecycle, logging)</div>
+  </header>
+  <div class=\"container\">
+    <div class=\"toolbar\">
+      <div>
+        <div class=\"muted small\">Topic filter</div>
+        <select id=\"topicFilter\"></select>
+      </div>
+      <div class=\"grid2\">
+        <label><input id=\"shuffleToggle\" type=\"checkbox\"> Shuffle</label>
+        <label><input id=\"reviewToggle\" type=\"checkbox\"> Review mode</label>
+      </div>
+      <button id=\"restartBtn\" class=\"primary\">Start / Restart</button>
+    </div>
+
+    <div class=\"card\">
+      <div class=\"qhead\">
+        <div>
+          <div id=\"qTopic\" class=\"badge\">Topic</div>
+          <h2 id=\"qTitle\" style=\"margin:6px 0 0\"></h2>
+        </div>
+        <div style=\"text-align:right\"> 
+          <div class=\"muted small\" id=\"qCounter\">0/0</div>
+          <div class=\"progress\"><div class=\"bar\" id=\"progressBar\"></div></div>
+        </div>
+      </div>
+
+      <div id=\"options\" class=\"options\"></div>
+      <div id=\"feedback\"></div>
+
+      <div class=\"controls\">
+        <button id=\"prevBtn\" class=\"pill\">◀ Prev</button>
+        <button id=\"nextBtn\" class=\"pill\">Next ▶</button>
+        <button id=\"revealBtn\" class=\"pill\">Reveal Answer</button>
+        <div class=\"pill\" id=\"scoreBadge\">Score: 0</div>
+      </div>
+    </div>
+
+    <footer class=\"small\">Tip: Turn on <b>Shuffle</b> for randomized order, and toggle <b>Review mode</b> to inspect explanations without affecting score.</footer>
+  </div>
+
+  <script>
+  // 100 questions dataset
+  const questions = [{q:"Which statement best defines cloud computing?",options:[
+      "Delivering computing services over the internet on-demand",
+      "Hosting websites on a local desktop",
+      "Running applications without any network",
+      "A synonym for virtualization only"],answer:0,topic:"Cloud Fundamentals",
+      explanation:"Cloud provides on‑demand delivery of compute, storage, databases, networking, and more over the internet with pay‑as‑you‑go pricing."},
+{q:"A public cloud is characterized by…",options:[
+      "Exclusive use by a single organization on premises",
+      "Resources owned and operated by a provider and offered to multiple tenants",
+      "A government‑only cloud with air‑gap",
+      "An isolated environment with no internet"],answer:1,topic:"Cloud Models",
+      explanation:"Public cloud resources are owned by providers (e.g., AWS) and shared among many customers (multi‑tenant)."},
+{q:"A private cloud is typically…",options:[
+      "Owned/managed by a third party for anyone to use",
+      "Dedicated to one organization, on‑prem or hosted, with greater control",
+      "Always cheaper than public cloud",
+      "Only for development workloads"],answer:1,topic:"Cloud Models",
+      explanation:"Private cloud is dedicated to a single org, offering control and customization; it can be on‑prem or hosted."},
+{q:"Hybrid cloud means…",options:[
+      "Using two AWS Regions",
+      "Combining on‑prem/private cloud with public cloud for portability and burst",
+      "Migrating everything to the public cloud",
+      "Using multiple accounts in one provider"],answer:1,topic:"Cloud Models",
+      explanation:"Hybrid links on‑prem/private with public cloud, allowing data and app portability and cloud bursting."},
+{q:"IaaS primarily offers…",options:[
+      "Managed runtime and code deployment only",
+      "Complete applications delivered as a service",
+      "Virtualized compute, storage, and networking with control of OS",
+      "Source code hosting and pipelines"],answer:2,topic:"Service Models",
+      explanation:"Infrastructure as a Service provides building blocks (EC2, EBS, VPC). You manage OS and above."},
+{q:"PaaS typically provides…",options:[
+      "Bare‑metal servers and racks",
+      "A managed platform/runtime (e.g., databases, app services) to deploy code without managing OS",
+      "Only packaged SaaS apps",
+      "Network hardware as a product"],answer:1,topic:"Service Models",
+      explanation:"Platform as a Service abstracts infrastructure and OS; you focus on code and data."},
+{q:"SaaS is…",options:[
+      "End‑user applications delivered over the internet (e.g., email, CRM)",
+      "A VM image store",
+      "Source control service only",
+      "A hardware procurement model"],answer:0,topic:"Service Models",
+      explanation:"Software as a Service provides complete applications accessible via web/API, managed by the provider."},
+{q:"Primary financial benefit of cloud computing is…",options:[
+      "Large upfront CapEx",
+      "Pay‑as‑you‑go with reduced CapEx and improved agility",
+      "Mandatory 3‑year prepayment",
+      "Free usage for production"],answer:1,topic:"Cloud Fundamentals",
+      explanation:"Cloud shifts spend to OpEx with pay‑as‑you‑go and elasticity, reducing upfront CapEx."},
+{q:"Which is a common characteristic of cloud elasticity?",options:[
+      "Fixed capacity regardless of demand",
+      "Manual procurement cycles",
+      "Automatic scale up/down based on usage",
+      "Only vertical scaling"],answer:2,topic:"Cloud Fundamentals",
+      explanation:"Elasticity enables automatic right‑sizing capacity to current demand."},
+{q:"Which of the following is NOT a cloud advantage?",options:[
+      "Global reach via multiple Regions",
+      "High agility and rapid provisioning",
+      "Infinite bandwidth for free",
+      "Reduced time to market"],answer:2,topic:"Cloud Fundamentals",
+      explanation:"Cloud doesn't provide infinite free bandwidth; data transfer costs and limits apply."},
+{q:"AWS global infrastructure building blocks are…",options:[
+      "Projects and Zones",
+      "Regions and Availability Zones",
+      "Sites and Colos",
+      "Continents and Cities"],answer:1,topic:"AWS Intro",
+      explanation:"AWS organizes data centers into Regions, each with multiple, isolated AZs."},
+{q:"Which pillar focuses on monitoring, incident response, and continuous improvement?",options:[
+      "Security",
+      "Operational Excellence",
+      "Reliability",
+      "Performance Efficiency"],answer:1,topic:"Well-Architected",
+      explanation:"Operational Excellence covers operations, runbooks, observability, and learning from incidents."},
+{q:"Which pillar emphasizes least privilege, data protection, and identity management?",options:[
+      "Security",
+      "Cost Optimization",
+      "Performance Efficiency",
+      "Sustainability"],answer:0,topic:"Well-Architected",
+      explanation:"Security pillar addresses identity, detection, infrastructure protection, and data protection."},
+{q:"Designing for fault tolerance and testing recovery ",options:[
+      "belongs to Reliability pillar",
+      "belongs to Cost Optimization pillar",
+      "belongs to Operational Excellence pillar",
+      "is not part of WAF"],answer:0,topic:"Well-Architected",
+      explanation:"Reliability focuses on resilience, failure management, and recovery testing."},
+{q:"Selecting right instance types and caching to reduce latency maps to…",options:[
+      "Performance Efficiency",
+      "Security",
+      "Reliability",
+      "Cost Optimization"],answer:0,topic:"Well-Architected",
+      explanation:"Performance Efficiency is about optimal resource selection and using advanced technologies."},
+{q:"Rightsizing, purchasing options, and lifecycle policies are examples of…",options:[
+      "Cost Optimization",
+      "Operational Excellence",
+      "Security",
+      "Reliability"],answer:0,topic:"Well-Architected",
+      explanation:"Cost Optimization aims to avoid unnecessary cost via right sizing and pricing models."},
+{q:"Which service helps you provision isolated virtual networks?",options:[
+      "Amazon VPC",
+      "Amazon S3",
+      "AWS IAM",
+      "AWS Lambda"],answer:0,topic:"AWS Intro",
+      explanation:"Amazon VPC lets you define isolated networks, subnets, routing, and security controls."},
+{q:"Which AWS support for event buses and rules replaced CloudWatch Events?",options:[
+      "AWS Step Functions",
+      "Amazon EventBridge",
+      "AWS AppSync",
+      "Amazon MQ"],answer:1,topic:"AWS Intro",
+      explanation:"Amazon EventBridge is the evolution of CloudWatch Events for event-driven integrations."},
+{q:"Which tool helps assess architectures against the 5 pillars?",options:[
+      "AWS Trusted Advisor",
+      "AWS Well-Architected Tool",
+      "AWS Cloud9",
+      "AWS CodeBuild"],answer:1,topic:"Well-Architected",
+      explanation:"The Well-Architected Tool helps review workloads and get improvement plans using the 5 pillars."},
+{q:"Which is NOT a Well‑Architected pillar?",options:[
+      "Cost Optimization",
+      "Security",
+      "Maintainability",
+      "Operational Excellence"],answer:2,topic:"Well-Architected",
+      explanation:"The five core pillars: Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization."},
+{q:"A public subnet in a VPC typically has…",options:[
+      "A route to an Internet Gateway (IGW)",
+      "Only a NAT Gateway route",
+      "No route table",
+      "A VPC peering mandatory"],answer:0,topic:"VPC",
+      explanation:"Public subnets route 0.0.0.0/0 to an IGW to have inbound/outbound internet."},
+{q:"A private subnet commonly uses…",options:[
+      "IGW for outbound",
+      "NAT Gateway in a public subnet for egress",
+      "VPC peering for egress",
+      "Direct Connect for DNS"],answer:1,topic:"VPC",
+      explanation:"Private subnets egress via NAT Gateway/Instance in a public subnet to reach the internet securely."},
+{q:"Route Tables in VPC…",options:[
+      "Apply globally across all VPCs",
+      "Control how traffic is directed out of subnets",
+      "Replace Security Groups",
+      "Are optional"],answer:1,topic:"VPC",
+      explanation:"Each subnet is associated with a route table that directs traffic to targets like IGW, NAT, TGW, VGW."},
+{q:"Security Groups are…",options:[
+      "Stateful, instance‑level firewalls allowing rules",
+      "Stateless network ACLs",
+      "Region‑wide DDoS protection",
+      "Only outbound filters"],answer:0,topic:"VPC Security",
+      explanation:"SGs are stateful and attached to ENIs/instances; return traffic is automatically allowed."},
+{q:"Network ACLs (NACLs) are…",options:[
+      "Stateful",
+      "Stateless and evaluated in order with allow/deny",
+      "Per‑instance only",
+      "The same as SG"],answer:1,topic:"VPC Security",
+      explanation:"NACLs are stateless at subnet boundary; you define numbered rules with allow/deny."},
+{q:"Elastic IP address (EIP) is…",options:[
+      "A static public IPv4 you can remap within a Region",
+      "A private IP only",
+      "An IPv6 only address",
+      "A DNS record in Route 53"],answer:0,topic:"Networking",
+      explanation:"EIP is a static public IPv4, useful for fixed endpoints and failover by remapping."},
+{q:"VPC Endpoints allow…",options:[
+      "Private connectivity to AWS services without Internet Gateway or NAT",
+      "Only cross‑region routing",
+      "Only public S3 access",
+      "Peering mandatory"],answer:0,topic:"VPC Endpoints",
+      explanation:"Gateway (S3/DynamoDB) and Interface endpoints let resources reach AWS services privately."},
+{q:"Which endpoint type is used for Amazon S3?",options:[
+      "Interface endpoint only",
+      "Gateway endpoint",
+      "NAT endpoint",
+      "Transit endpoint"],answer:1,topic:"VPC Endpoints",
+      explanation:"S3 and DynamoDB use Gateway endpoints; most other services use Interface endpoints (ENI)."},
+{q:"Which service connects multiple VPCs and on‑prem at scale with hub‑and‑spoke?",options:[
+      "VPC Peering",
+      "AWS Transit Gateway",
+      "Direct Connect Gateway",
+      "NAT Gateway"],answer:1,topic:"Transit Gateway",
+      explanation:"Transit Gateway simplifies many‑to‑many connectivity across VPCs and VPNs."},
+{q:"VPC Peering supports…",options:[
+      "Transitive routing across peers",
+      "Non‑overlapping CIDRs with non‑transitive, point‑to‑point connectivity",
+      "Implicit DNS resolution across all VPCs",
+      "Sharing security groups"],answer:1,topic:"VPC Peering",
+      explanation:"Peering is non‑transitive; each peering must be explicitly configured and CIDRs must not overlap."},
+{q:"An Internet Gateway (IGW) is required for…",options:[
+      "Private to private subnet routing",
+      "Outbound internet access from public subnets",
+      "VPC Peering",
+      "Direct Connect"],answer:1,topic:"VPC",
+      explanation:"IGW enables internet access for resources in public subnets with routes to 0.0.0.0/0."},
+{q:"NAT Gateway is placed in…",options:[
+      "Private subnet",
+      "Public subnet with an Elastic IP",
+      "On‑prem router",
+      "Transit Gateway"],answer:1,topic:"NAT Gateway",
+      explanation:"NAT Gateway resides in a public subnet with EIP to provide outbound egress for private subnets."},
+{q:"Which control is stateful?",options:[
+      "Security Group",
+      "Network ACL",
+      "Route Table",
+      "DHCP Options Set"],answer:0,topic:"VPC Security",
+      explanation:"Security Groups are stateful; NACLs are stateless; route tables are directional rules, not firewalls."},
+{q:"Which statement about NACLs is TRUE?",options:[
+      "They support deny rules",
+      "They are stateful",
+      "They attach to ENIs",
+      "They replace SGs"],answer:0,topic:"VPC Security",
+      explanation:"NACLs allow both allow and deny; SGs are allow‑only but stateful."},
+{q:"A customer gateway (CGW) in AWS VPN refers to…",options:[
+      "AWS‑managed device in VPC",
+      "Your on‑prem device or software VPN endpoint",
+      "An S3 endpoint",
+      "A load balancer"],answer:1,topic:"VPN",
+      explanation:"CGW is the on‑premises endpoint; virtual private gateway (VGW) or TGW is on AWS side."},
+{q:"A virtual private gateway (VGW) attaches to…",options:[
+      "A VPC for site‑to‑site VPN",
+      "An EC2 instance",
+      "An S3 bucket",
+      "A Region"],answer:0,topic:"VPN",
+      explanation:"VGW is the AWS side of a VPC‑attached VPN connection (or use TGW VPN attachment)."},
+{q:"Which provides private connectivity to AWS over a dedicated link?",options:[
+      "AWS Direct Connect",
+      "VPC Peering",
+      "Internet Gateway",
+      "NAT Gateway"],answer:0,topic:"Direct Connect",
+      explanation:"DX offers dedicated, private network links to AWS for consistent performance and lower egress."},
+{q:"Direct Connect + VPN is commonly used to…",options:[
+      "Block redundancy",
+      "Provide encrypted backup over the internet for DX",
+      "Replace routing protocols",
+      "Avoid BGP"],answer:1,topic:"Direct Connect",
+      explanation:"A VPN over the internet provides encrypted failover path while DX offers primary private connectivity."},
+{q:"For overlapping CIDRs between VPCs you should use…",options:[
+      "VPC Peering",
+      "NAT or re‑addressing; peering/TGW requires non‑overlapping CIDRs",
+      "IGW",
+      "EIP"],answer:1,topic:"VPC",
+      explanation:"Peering and TGW require unique, non‑overlapping IP ranges; consider NAT or CIDR redesign."},
+{q:"Gateway Load Balancer (GWLB) is primarily used to…",options:[
+      "Balance HTTP paths",
+      "Distribute traffic to virtual appliances (firewalls) using GENEVE",
+      "Provide NAT for private subnets",
+      "Manage DNS"],answer:1,topic:"Load Balancing",
+      explanation:"GWLB integrates third‑party appliances at scale; ALB is L7, NLB is L4."},
+{q:"On‑Demand Instances are best when…",options:[
+      "Workload is steady and 1‑3 year commitment is acceptable",
+      "You need short‑term, unpredictable capacity without commitment",
+      "You want the lowest possible cost for fault‑tolerant flexible workloads",
+      "You need dedicated on‑prem capacity"],answer:1,topic:"EC2 Pricing",
+      explanation:"On‑Demand suits spiky/short‑term use with no commitments."},
+{q:"Reserved Instances/Savings Plans benefit…",options:[
+      "Unpredictable spikes",
+      "Steady‑state usage over 1 or 3 years",
+      "Batch jobs that can be interrupted",
+      "Only GPU workloads"],answer:1,topic:"EC2 Pricing",
+      explanation:"RIs/Savings Plans reduce cost for predictable, steady workloads under term commitments."},
+{q:"Spot Instances are ideal for…",options:[
+      "Stateful monoliths requiring high availability",
+      "Fault‑tolerant, flexible workloads that can handle interruptions",
+      "Databases with strict SLAs",
+      "Prod web servers with single AZ"],answer:1,topic:"EC2 Pricing",
+      explanation:"Spots offer up to 90% savings but can be reclaimed; great for batch, CI, stateless fleets."},
+{q:"A Key Pair in EC2 is used for…",options:[
+      "Encrypting S3 buckets",
+      "SSH/RDP authentication to instances",
+      "KMS CMK management",
+      "Route 53 health checks"],answer:1,topic:"EC2",
+      explanation:"Key pairs authenticate to instances (SSH for Linux, RDP for Windows with password decryption)."},
+{q:"Availability Zones are…",options:[
+      "Separate Regions",
+      "Isolated data centers within a Region, connected with low‑latency links",
+      "Edge locations only",
+      "GovCloud sites"],answer:1,topic:"Regions & AZs",
+      explanation:"AZs are physically separate within a Region, enabling high availability architectures."},
+{q:"Which statement about Regions is TRUE?",options:[
+      "Data never leaves a Region unless you move it",
+      "All services exist in all Regions",
+      "Regions are the same as AZs",
+      "Pricing is identical globally"],answer:0,topic:"Regions & AZs",
+      explanation:"AWS doesn’t move customer data across Regions without you initiating replication/transfer."},
+{q:"Which EBS type offers highest single‑digit ms latency for general purpose?",options:[
+      "sc1",
+      "st1",
+      "gp3/gp2",
+      "io2/io1"],answer:2,topic:"EBS",
+      explanation:"gp3/gp2 are general purpose SSD volumes; io2/io1 are provisioned IOPS SSD for high performance."},
+{q:"Which EBS type is optimized for throughput (streaming, big data)?",options:[
+      "st1",
+      "sc1",
+      "gp3",
+      "io2"],answer:0,topic:"EBS",
+      explanation:"st1 is throughput‑optimized HDD; sc1 is cold HDD for infrequently accessed, large sequential I/O."},
+{q:"An AMI captures…",options:[
+      "Only instance metadata",
+      "The boot volume and configuration used to launch EC2 instances",
+      "Just user data scripts",
+      "Only network settings"],answer:1,topic:"AMI",
+      explanation:"AMI is a template of the root volume, launch permissions, and block device mapping."},
+{q:"An EBS snapshot is…",options:[
+      "A full backup only",
+      "An incremental, point‑in‑time backup stored in Amazon S3 (managed)",
+      "A live mirroring",
+      "A Route 53 record"],answer:1,topic:"EBS",
+      explanation:"EBS snapshots are incremental and stored by AWS, enabling volume restore and AMI creation."},
+{q:"To attach the same EBS volume to multiple instances concurrently (multi‑attach) you need…",options:[
+      "io1/io2 with multi‑attach and supported OS/filesystem",
+      "gp2/gp3",
+      "st1",
+      "sc1"],answer:0,topic:"EBS",
+      explanation:"EBS Multi‑Attach is supported for io1/io2 volumes in certain Regions and requires cluster‑aware FS."},
+{q:"Which provides static public IPv4 you can move between instances?",options:[
+      "Private IP",
+      "Elastic IP",
+      "ENI only",
+      "NAT"],answer:1,topic:"Networking",
+      explanation:"Elastic IP supports remapping for quick failover or maintenance."},
+{q:"User data in EC2 runs…",options:[
+      "On first boot (by default) to initialize instance configuration",
+      "Every minute",
+      "Only when stopping",
+      "Only for Windows"],answer:0,topic:"EC2",
+      explanation:"User data is executed at first launch by cloud‑init on Linux (configurable to run each boot)."},
+{q:"Placement groups that optimize network latency between instances are…",options:[
+      "Spread groups",
+      "Cluster placement groups",
+      "Partition groups",
+      "Security groups"],answer:1,topic:"EC2",
+      explanation:"Cluster groups place instances in a single AZ for low‑latency, high‑bandwidth networking."},
+{q:"Which Linux command shows your instance's hostname?",options:[
+      "ls",
+      "pwd",
+      "hostname",
+      "chmod"],answer:2,topic:"Linux Basics",
+      explanation:"`hostname` prints or sets the system hostname."},
+{q:"Which Linux command changes file permissions?",options:[
+      "cat",
+      "chmod",
+      "grep",
+      "mv"],answer:1,topic:"Linux Basics",
+      explanation:"`chmod` changes file mode bits (read, write, execute)."},
+{q:"Which Linux command lists network interfaces and IP addresses on modern distros?",options:[
+      "ifconfig (deprecated)",
+      "ip addr",
+      "route print",
+      "net use"],answer:1,topic:"Linux Basics",
+      explanation:"`ip addr` (from iproute2) shows addresses; `ifconfig` is legacy on many systems."},
+{q:"To safely detach an EBS volume from a Linux instance you should…",options:[
+      "Just power off EC2",
+      "Unmount filesystem before detach",
+      "Delete the volume directly",
+      "Stop the instance always"],answer:1,topic:"EBS",
+      explanation:"Unmount to flush buffers and avoid FS corruption, then detach via console/CLI."},
+{q:"Which command checks disk usage by filesystem?",options:[
+      "df -h",
+      "du -s",
+      "free -m",
+      "top"],answer:0,topic:"Linux Basics",
+      explanation:"`df -h` displays filesystem disk space usage in human‑readable units."},
+{q:"An Auto Scaling group (ASG) requires…",options:[
+      "At least one target (subnets) and a launch template or config",
+      "Only a key pair",
+      "A NAT Gateway",
+      "An S3 bucket"],answer:0,topic:"Auto Scaling",
+      explanation:"ASG uses launch template/config and defines subnets, desired/min/max capacity, scaling policies."},
+{q:"Which is TRUE about EC2 Auto Scaling lifecycle hooks?",options:[
+      "They only apply to termination",
+      "They allow actions during Pending/Terminating states (e.g., configure or drain)",
+      "They stop scaling",
+      "They require Lambda only"],answer:1,topic:"Auto Scaling",
+      explanation:"Lifecycle hooks pause instances for custom actions during scale in/out events."},
+{q:"Target tracking scaling policy…",options:[
+      "Maintains a metric (e.g., CPU 50%) by adjusting capacity",
+      "Scales at fixed times only",
+      "Is manual",
+      "Works only with NLB"],answer:0,topic:"Auto Scaling",
+      explanation:"Target tracking automates scaling towards a metric target similar to a thermostat."},
+{q:"Scheduled scaling is useful for…",options:[
+      "Handling random spikes",
+      "Known predictable changes (e.g., business hours)",
+      "One‑time deployments",
+      "Backups only"],answer:1,topic:"Auto Scaling",
+      explanation:"Schedule capacity based on known demand patterns to optimize cost and performance."},
+{q:"An Application Load Balancer (ALB) operates at…",options:[
+      "Layer 3",
+      "Layer 4",
+      "Layer 7 (HTTP/HTTPS) with advanced routing",
+      "Layer 2"],answer:2,topic:"Load Balancing",
+      explanation:"ALB is L7, supporting path/host routing, headers, WebSockets, and authentication."},
+{q:"A Network Load Balancer (NLB) operates at…",options:[
+      "Layer 7",
+      "Layer 4 (TCP/UDP) with ultra‑high performance and static IPs",
+      "Layer 3 only",
+      "DNS layer"],answer:1,topic:"Load Balancing",
+      explanation:"NLB is L4 with millions of requests per second and support for static IP/EIP."},
+{q:"Which load balancer supports sticky sessions and header‑based routing?",options:[
+      "NLB",
+      "ALB",
+      "GWLB",
+      "Classic only"],answer:1,topic:"Load Balancing",
+      explanation:"ALB supports cookies, stickiness, path/host/header routing, and WAF integration."},
+{q:"For gRPC and HTTP/2 microservices, choose…",options:[
+      "ALB",
+      "NLB",
+      "GWLB",
+      "Route 53 only"],answer:0,topic:"Load Balancing",
+      explanation:"ALB supports HTTP/2, HTTP/1.1, WebSockets, and gRPC for app‑layer routing."},
+{q:"To expose a TCP service (e.g., database proxy) at static IPs, use…",options:[
+      "ALB",
+      "NLB with EIP",
+      "Route 53 only",
+      "IGW"],answer:1,topic:"Load Balancing",
+      explanation:"NLB provides static IPs and L4 balancing, suitable for TCP/UDP services."},
+{q:"Health checks in Target Groups are used to…",options:[
+      "Monitor EC2 billing",
+      "Determine instance health for routing decisions",
+      "Replace CloudWatch",
+      "Configure DNS"],answer:1,topic:"Load Balancing",
+      explanation:"Targets not passing health checks are removed from routing until healthy again."},
+{q:"Connection draining (deregistration delay) helps…",options:[
+      "Drop connections immediately",
+      "Allow in‑flight requests to complete during scale in or rotation",
+      "Encrypt traffic",
+      "Cache content"],answer:1,topic:"Load Balancing",
+      explanation:"Deregistration delay ensures graceful shutdown without disrupting users."},
+{q:"Which is TRUE about cross‑zone load balancing?",options:[
+      "It routes traffic only within one AZ",
+      "It distributes traffic evenly across AZs (charges vary by LB type)",
+      "It requires Direct Connect",
+      "It disables health checks"],answer:1,topic:"Load Balancing",
+      explanation:"Cross‑zone spreads load across healthy targets in all enabled AZs."},
+{q:"Which attachment lets ASG receive traffic via ALB?",options:[
+      "ASG security group",
+      "Register the ASG's instances with a Target Group used by ALB",
+      "Attach ENI to ALB",
+      "Create NACL"],answer:1,topic:"Auto Scaling",
+      explanation:"ALB sends traffic to a Target Group; ASG launches instances into that group automatically when configured."},
+{q:"Warm pools in Auto Scaling…",options:[
+      "Are for caching S3 objects",
+      "Keep pre‑initialized instances to reduce scale‑out time",
+      "Are for Spot Fleet only",
+      "Replace lifecycle hooks"],answer:1,topic:"Auto Scaling",
+      explanation:"Warm pools maintain pre‑started instances, improving response time to scale‑out events."},
+{q:"ASG termination policies decide…",options:[
+      "Which instance to terminate during scale‑in (e.g., oldest, AZ rebalancing)",
+      "Which AMI to use",
+      "Which SG rules to add",
+      "Which Region to use"],answer:0,topic:"Auto Scaling",
+      explanation:"Policies guide which instances are removed during scale‑in to maintain balance and cost."},
+{q:"Amazon CloudWatch Alarms can…",options:[
+      "Change IAM policies automatically",
+      "Trigger actions (SNS, Auto Scaling) when a metric breaches a threshold",
+      "Replace Route 53",
+      "Back up EBS"],answer:1,topic:"CloudWatch",
+      explanation:"Alarms act on metric states to notify or automate responses like scaling."},
+{q:"EventBridge (formerly CloudWatch Events) is used to…",options:[
+      "Store logs",
+      "Route events from sources to targets with rules and buses",
+      "Monitor billing only",
+      "Create VPCs"],answer:1,topic:"EventBridge",
+      explanation:"EventBridge routes events from AWS services, SaaS apps, or custom apps to targets per rules."},
+{q:"Which S3 storage class is lowest cost for rarely accessed, with milliseconds access and minimum storage duration?",options:[
+      "S3 Standard",
+      "S3 Standard‑IA",
+      "S3 One Zone‑IA",
+      "S3 Glacier Instant Retrieval"],answer:1,topic:"S3",
+      explanation:"Standard‑IA is lower cost for infrequent access, with retrieval fee and minimum duration."},
+{q:"S3 Lifecycle policies can…",options:[
+      "Auto‑tier objects to IA/Glacier classes and expire them",
+      "Encrypt objects with customer keys",
+      "Replace bucket policies",
+      "Run EC2 instances"],answer:0,topic:"S3",
+      explanation:"Lifecycle transitions objects between classes and can expire/delete versions and incomplete uploads."},
+{q:"S3 server access logging stores logs in…",options:[
+      "The same bucket (recommended)",
+      "A target bucket you specify (recommended different bucket)",
+      "CloudWatch Logs only",
+      "RDS"],answer:1,topic:"S3",
+      explanation:"Best practice: log to a dedicated bucket to avoid recursive logging and simplify analysis."},
+{q:"Which S3 class is designed for data archiving with retrieval in minutes to hours?",options:[
+      "S3 Glacier Flexible Retrieval",
+      "S3 Standard",
+      "S3 One Zone‑IA",
+      "S3 Intelligent‑Tiering"],answer:0,topic:"Glacier",
+      explanation:"Glacier Flexible Retrieval (formerly Glacier) offers low‑cost archival with expedited/standard/bulk retrievals."},
+{q:"Which S3 class offers the lowest storage cost for long-term archiving with retrieval typically in hours?",options:[
+      "S3 Glacier Deep Archive",
+      "S3 Standard-IA",
+      "S3 One Zone-IA",
+      "S3 Glacier Instant Retrieval"],answer:0,topic:"Glacier",
+      explanation:"S3 Glacier Deep Archive is the lowest-cost archival class with retrieval typically in hours and minimum storage duration."},
+{q:"S3 Intelligent‑Tiering automatically…",options:[
+      "Encrypts data",
+      "Moves objects between tiers based on access patterns",
+      "Deletes old objects",
+      "Replicates across Regions"],answer:1,topic:"S3",
+      explanation:"Intelligent‑Tiering monitors access and moves objects to cost‑optimized tiers automatically."},
+{q:"To ensure all S3 PUT/DELETE events trigger processing, use…",options:[
+      "EventBridge or S3 Event Notifications to targets (e.g., Lambda, SQS)",
+      "Only CloudTrail",
+      "Only NACLs",
+      "EC2 user data"],answer:0,topic:"S3",
+      explanation:"Use S3 event notifications or EventBridge to integrate with processing services."},
+{q:"CloudWatch metrics for ELB include…",options:[
+      "HealthyHostCount / UnHealthyHostCount",
+      "CPUUtilization",
+      "FreeableMemory",
+      "ReadIOPS"],answer:0,topic:"CloudWatch",
+      explanation:"LB target group metrics include healthy/unhealthy counts, request counts, latency, etc."},
+{q:"Which S3 security feature blocks public access at bucket/account level?",options:[
+      "S3 Block Public Access",
+      "Bucket Versioning",
+      "Transfer Acceleration",
+      "Requester Pays"],answer:0,topic:"S3",
+      explanation:"Block Public Access prevents public ACLs/policies even if mistakenly applied."},
+{q:"To centrally log API activity across AWS accounts, use…",options:[
+      "AWS CloudTrail",
+      "CloudWatch Alarms",
+      "EventBridge Pipes",
+      "Trusted Advisor"],answer:0,topic:"CloudTrail",
+      explanation:"CloudTrail records API calls and delivers logs to S3/CloudWatch for governance and auditing."},
+{q:"Which S3 feature helps analyze access logs quickly without servers?",options:[
+      "S3 Select",
+      "Athena querying logs in S3",
+      "S3 Batch Operations",
+      "S3 CORS"],answer:1,topic:"S3",
+      explanation:"Athena can query logs in S3 using SQL; S3 Select is per‑object partial retrieval."},
+{q:"S3 default consistency model now provides…",options:[
+      "Eventual consistency for all operations",
+      "Strong read‑after‑write and strongly consistent list/overwrite across Regions",
+      "Only eventual across Regions",
+      "Strong only for US‑East‑1"],answer:1,topic:"S3",
+      explanation:"S3 offers strong consistency for PUTs and LIST/GET of new and updated objects globally."},
+{q:"S3 encryption at rest can be achieved with…",options:[
+      "SSE‑S3, SSE‑KMS, SSE‑C, or client‑side encryption",
+      "Only SSE‑S3",
+      "Only KMS",
+      "IAM only"],answer:0,topic:"S3",
+      explanation:"Multiple encryption modes exist; SSE‑KMS enables key policies, audit, and granular control."},
+{q:"A site‑to‑site VPN uses which protocols typically?",options:[
+      "IPsec over the internet with IKEv1/v2",
+      "TLS only",
+      "GRE without encryption",
+      "SSH tunnels"],answer:0,topic:"VPN",
+      explanation:"AWS VPN uses IPsec tunnels with IKE for key exchange over the public internet."},
+{q:"To connect many VPCs and on‑prem with segmentation, choose…",options:[
+      "Multiple full‑mesh peerings",
+      "Transit Gateway with route domains (route tables)",
+      "Only IGW",
+      "DX only"],answer:1,topic:"Transit Gateway",
+      explanation:"TGW simplifies connectivity and lets you segment via multiple TGW route tables."},
+{q:"Which statement about VPC Peering DNS is TRUE?",options:[
+      "DNS resolution never works across peers",
+      "Enable DNS resolution/hostnames and private hosted zones association to resolve across VPCs",
+      "Requires NAT",
+      "Requires TGW"],answer:1,topic:"VPC Peering",
+      explanation:"With proper settings, Route 53 private zones can be shared or associated to enable cross‑VPC DNS resolution."},
+{q:"Gateway endpoints for S3 require…",options:[
+      "Route table entries for the prefix list to target the endpoint",
+      "Security group rules",
+      "NAT Gateway",
+      "ALB"],answer:0,topic:"VPC Endpoints",
+      explanation:"Add routes to the endpoint’s prefix list in relevant route tables (for Gateway endpoints)."},
+{q:"Which component provides TCP/UDP load balancing with TLS passthrough and static IP?",options:[
+      "ALB",
+      "NLB",
+      "GWLB",
+      "Route 53"],answer:1,topic:"Load Balancing",
+      explanation:"NLB operates at L4 and supports static IPs, TLS termination or passthrough, and UDP."},
+{q:"Auto Scaling cooldown helps…",options:[
+      "Accelerate consecutive scale‑out events",
+      "Prevent rapid oscillation by letting metrics stabilize",
+      "Configure NACLs",
+      "Set IAM roles"],answer:1,topic:"Auto Scaling",
+      explanation:"Cooldowns avoid thrashing after scaling actions by waiting before next policy runs."},
+{q:"Best practice for highly available NAT is…",options:[
+      "Single NAT Gateway per VPC",
+      "One NAT Gateway per AZ and route private subnets in that AZ to the local NAT",
+      "Use IGW in private subnets",
+      "Use NLB"],answer:1,topic:"NAT Gateway",
+      explanation:"Deploy NAT GW in each AZ for zonal resilience and keep traffic AZ‑local."},
+{q:"Which feature can protect ALB‑fronted apps from common web exploits?",options:[
+      "AWS WAF",
+      "NACL",
+      "KMS",
+      "EIP"],answer:0,topic:"Load Balancing",
+      explanation:"AWS WAF integrates with ALB (and others) to filter and block malicious patterns."},
+{q:"To allow an EC2 instance to call S3 without long‑term keys, use…",options:[
+      "Access keys in AMI",
+      "An IAM role attached to the instance profile",
+      "Public bucket",
+      "User data with secrets"],answer:1,topic:"Security",
+      explanation:"Best practice: short‑term credentials via instance profile/role; avoid hard‑coded keys."},
+{q:"Which is recommended for logging ALB/NLB access?",options:[
+      "Enable access logs to S3 (or CloudWatch for NLB flow logs via VPC)",
+      "Rely only on CloudTrail",
+      "Disable logs in prod",
+      "Store logs on instance root"],answer:0,topic:"Observability",
+      explanation:"Enable load balancer access logs to analyze traffic patterns, troubleshoot, and meet compliance."},
+    {q:"Which EBS volume type is lowest-cost HDD optimized for infrequently accessed data?",options:[
+      "sc1 (Cold HDD)",
+      "st1 (Throughput-optimized HDD)",
+      "gp3 (General Purpose SSD)",
+      "io2 (Provisioned IOPS SSD)"],answer:0,topic:"EBS",
+      explanation:"sc1 is the lowest-cost HDD class for infrequently accessed, large, sequential data; st1 is throughput-optimized."},
+];
+
+  // Build topic filter options
+  const topics = ["All"].concat([...new Set(questions.map(q=>q.topic))].sort());
+  const topicFilter = document.getElementById('topicFilter');
+  topics.forEach(t=>{ const opt=document.createElement('option'); opt.value=t; opt.textContent=t; topicFilter.appendChild(opt); });
+
+  // State
+  let order = [...questions.keys()];
+  let idx = 0;
+  let score = 0;
+  let answered = new Map(); // index -> {choice, correct}
+
+  const shuffleToggle = document.getElementById('shuffleToggle');
+  const reviewToggle = document.getElementById('reviewToggle');
+  const restartBtn = document.getElementById('restartBtn');
+  const qTitle = document.getElementById('qTitle');
+  const qTopic = document.getElementById('qTopic');
+  const qCounter = document.getElementById('qCounter');
+  const progressBar = document.getElementById('progressBar');
+  const optionsDiv = document.getElementById('options');
+  const feedbackDiv = document.getElementById('feedback');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const revealBtn = document.getElementById('revealBtn');
+  const scoreBadge = document.getElementById('scoreBadge');
+
+  function fisherYates(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+  function applyFilter(){
+    const t = topicFilter.value;
+    const indices = questions.map((_,i)=>i).filter(i=> t==='All' || questions[i].topic===t);
+    order = indices;
+    if(shuffleToggle.checked) fisherYates(order);
+    idx = 0; score = 0; answered = new Map();
+    render();
+  }
+
+  function start(){ applyFilter(); }
+
+  function render(){
+    if(order.length===0){ qTitle.textContent = 'No questions for the selected topic.'; optionsDiv.innerHTML=''; feedbackDiv.innerHTML=''; qCounter.textContent='0/0'; progressBar.style.width='0%'; qTopic.textContent='Topic'; return; }
+    const qi = order[idx];
+    const q = questions[qi];
+    qTitle.textContent = q.q;
+    qTopic.textContent = q.topic;
+    qCounter.textContent = `${idx+1}/${order.length}`;
+    progressBar.style.width = `${((idx+1)/order.length)*100}%`;
+
+    // Options
+    optionsDiv.innerHTML = '';
+    const chosen = answered.get(qi)?.choice;
+    q.options.forEach((optText, i)=>{
+      const btn = document.createElement('button');
+      btn.className='opt';
+      btn.innerHTML = `${String.fromCharCode(65+i)}. ${optText}`;
+      if(reviewToggle.checked && typeof chosen === 'number'){
+        if(i===q.answer) btn.classList.add('correct');
+        if(i===chosen && chosen!==q.answer) btn.classList.add('wrong');
+      }
+      btn.onclick = ()=> choose(i);
+      optionsDiv.appendChild(btn);
+    });
+
+    // Feedback
+    feedbackDiv.innerHTML = '';
+    if(reviewToggle.checked && answered.has(qi)){
+      const wasCorrect = answered.get(qi).correct;
+      const box = document.createElement('div');
+      box.className = 'result ' + (wasCorrect? 'ok':'bad');
+      box.innerHTML = `<b>${wasCorrect? 'Correct':'Incorrect'}</b><br/><span class=\"muted\">${q.explanation}</span>`;
+      feedbackDiv.appendChild(box);
+    }
+
+    scoreBadge.textContent = `Score: ${score}`;
+    prevBtn.disabled = idx===0;
+    nextBtn.disabled = idx===order.length-1;
+  }
+
+  function choose(i){
+    const qi = order[idx];
+    const q = questions[qi];
+    const already = answered.get(qi);
+    const inReview = reviewToggle.checked;
+
+    if(inReview){ // Just show explanation; do not change score
+      reveal();
+      return;
+    }
+
+    // If answering first time, update score
+    if(!already){
+      const correct = (i===q.answer);
+      answered.set(qi,{choice:i, correct});
+      if(correct) score++;
+    }else{
+      // Allow changing answer before moving? Keep first answer scoring to avoid gaming
+    }
+
+    // Visual feedback
+    const buttons = [...document.querySelectorAll('.opt')];
+    buttons.forEach((b,idxOpt)=>{
+      if(idxOpt===q.answer) b.classList.add('correct');
+      if(idxOpt===i && idxOpt!==q.answer) b.classList.add('wrong');
+    });
+
+    const box = document.createElement('div');
+    const wasCorrect = (i===q.answer);
+    box.className = 'result ' + (wasCorrect? 'ok':'bad');
+    box.innerHTML = `<b>${wasCorrect? 'Correct ✅':'Incorrect ❌'}</b><br/><span class=\"muted\">${q.explanation}</span>`;
+    feedbackDiv.innerHTML = '';
+    feedbackDiv.appendChild(box);
+
+    scoreBadge.textContent = `Score: ${score}`;
+  }
+
+  function reveal(){
+    const qi = order[idx];
+    const q = questions[qi];
+    const buttons = [...document.querySelectorAll('.opt')];
+    buttons.forEach((b,idxOpt)=>{ if(idxOpt===q.answer) b.classList.add('correct'); });
+    const box = document.createElement('div');
+    box.className = 'result ok';
+    box.innerHTML = `<b>Answer</b>: ${String.fromCharCode(65+q.answer)} — ${q.options[q.answer]}<br/><span class=\"muted\">${q.explanation}</span>`;
+    feedbackDiv.innerHTML = '';
+    feedbackDiv.appendChild(box);
+  }
+
+  prevBtn.onclick = ()=>{ if(idx>0){ idx--; render(); } };
+  nextBtn.onclick = ()=>{ if(idx<order.length-1){ idx++; render(); } };
+  revealBtn.onclick = reveal;
+  shuffleToggle.onchange = start;
+  reviewToggle.onchange = render;
+  topicFilter.onchange = applyFilter;
+  restartBtn.onclick = start;
+
+  // Initialize
+  start();
+  </script>
+</body>
+</html>
